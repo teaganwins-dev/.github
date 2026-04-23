@@ -87,3 +87,42 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 Ask Teagan. Include: what you were trying to do, what command you ran, the
 exact error.
+
+---
+
+## For Claude Code (and other AI agents) working in this repo
+
+Humans can skip this section; it's for the AI contributors.
+
+**Check before asking.** Before asking the user for any credential, URL, host,
+API token, password, SSH target, webhook secret, or access path, check the
+existing sources and try the operation yourself:
+
+- **Bitwarden is auto-unlocked** on Teagan's workstation — `BW_MASTER_PASSWORD`
+  is set as a persistent Windows user env var, and as a shell env on
+  vigil-server. Do not ask the user to unlock BW.
+  ```bash
+  [ -z "$BW_MASTER_PASSWORD" ] && export BW_MASTER_PASSWORD=$(powershell.exe -NoProfile -Command '[Environment]::GetEnvironmentVariable("BW_MASTER_PASSWORD","User")' | tr -d '\r\n')
+  bw unlock --passwordenv BW_MASTER_PASSWORD --raw > /tmp/.bw_session
+  export BW_SESSION=$(cat /tmp/.bw_session)
+  bw list items --search "<term>"
+  ```
+- **SSH is pre-keyed** on every owned host — `vigil-desk`, `vigil-server`,
+  `plex-server`, `yeti-nas` (user `admin`), the six VTC code-server containers.
+  Try `ssh` before asking for access.
+- **Dev-context + memory** — `/shared/dev-context/` (in containers) or
+  `~/dev-context/` (on Teagan's laptop) has every platform, tool, project, and
+  decision. Read before asking where something lives.
+- **Authenticated CLIs** — `wrangler`, `flarectl`, `gh`, `az`, `railway`,
+  `supabase`, `eas`, `expo`, `bw`, `docker`, `ssh`. Use them directly. Never
+  send the user to a dashboard for work these cover.
+
+**"Execute with care" does not gate low-risk reads.** Retrieving a credential
+from an unlocked vault, SSH-ing to a host in your key-ring, listing DNS
+records, or inspecting a queue are reads — the care bias applies to
+*destructive* actions (force-push, delete, write to shared state), not to
+lookups. If you're composing a "do you have X handy?" or "can you get me
+access to Y?" message, **stop, check the obvious sources, and try.**
+
+Teagan has flagged "agents asking for things they already have access to" as
+the single biggest daily friction point. Don't be that agent.
